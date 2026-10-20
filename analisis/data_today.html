@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        .diagram-title {
+            font-size: 14pt;
+            font-weight: bolder;
+        }
+
+        .scroll {
+            display: block;
+            border: 1px solid #16B031;
+            padding: 5px;
+            margin-top: 5px;
+            width: 100%;
+            height: 100%;
+            overflow-y: scroll;
+        }
+
+        .child-div {
+            height: 100%;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            align-items: stretch;
+        }
+
+        .root {
+            width: 100%
+        }
+    </style>
+
+</head>
+
+<body>
+    <div style="height: 35rem;">
+        <div class="child-div">
+            <div class="card p-4 mt-4">
+                <h1 class="diagram-title">Level Ketinggian Air</h1>
+                <canvas id="WaterLevelChart" height="30px" width="100%"></canvas>
+            </div>
+
+            <div class="card p-4 mt-4">
+                <h1 class="diagram-title">Kelembaban Tanah</h1>
+                <canvas id="SoilMoistureChart" height="30px" width="100%"></canvas>
+            </div>
+
+            <div class="card p-4 mt-4">
+                <h1 class="diagram-title">Suhu</h1>
+                <canvas id="TemperatureChart" height="30px" width="100%"></canvas>
+            </div>
+
+            <div class="card p-4 mt-4">
+                <h1 class="diagram-title">Kelembaban Udara</h1>
+                <canvas id="HumidityChart" height="30px" width="100%"></canvas>
+            </div>
+            <div style="height: 40px;"></div>
+        </div>
+    </div>
+
+
+    <!-- Library Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+
+    <!-- Inisialisasi Firebase -->
+    <script>
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCgfuXQnnOE53pMU6dgMWQLmpwWiczcDRg",
+            authDomain: "digifarm-c4420.firebaseapp.com",
+            databaseURL: "https://digifarm-c4420-default-rtdb.firebaseio.com",
+            projectId: "digifarm-c4420",
+            storageBucket: "digifarm-c4420.appspot.com",
+            messagingSenderId: "404613354366",
+            appId: "1:404613354366:web:b0cf2723df898d22efd92f"
+        };
+
+        // Initialize Firebase
+        // firebase.initializeApp(firebaseConfig);
+
+    </script>
+
+    <script>
+
+        var now = new Date();
+
+        var date = ('0' + now.getDate()).slice(-2);
+        var month = ('0' + (now.getMonth() + 1)).slice(-2);
+        var year = now.getFullYear();
+        var hours = ('0' + now.getHours()).slice(-2);
+        var minutes = ('0' + now.getMinutes()).slice(-2);
+        var time = `Current Data/${year}/${month}/${date}/${hours}/${hours}-`;
+
+        var firebaseRef = firebase.database().ref(`Collection Data/${year}/${month}/${date}`);
+
+        // console.log(`Collection Data/${year}/${month}/${date}/${hours}`);
+
+        var sum_water_level_an_hour = 0;
+        var label_per_jam = [];
+
+        var data_water_level_per_jam = [];
+        var data_soil_moisture_per_jam = [];
+        var data_temperature_per_jam = [];
+        var data_humidity_per_jam = [];
+
+        firebaseRef.on("value", function (snapshot) {
+
+            console.log(`${hours}/${hours}-${minutes}`);
+
+            for (var a = 0; a < 24; a++) {
+
+                label_per_jam.push(('0' + a).slice(-2));
+
+                var sum_water_level_per_menit = 0;
+                var sum_soil_moisture_per_menit = 0;
+                var sum_temperature_per_menit = 0;
+                var sum_humidity_per_menit = 0;
+
+                var sum_water_level_per_jam = 0;
+                var sum_soil_moisture_per_jam = 0;
+                var sum_temperature_per_jam = 0;
+                var sum_humidity_per_jam = 0;
+
+                var ratarata_water_level_per_jam = 0;
+                var ratarata_soil_moisture_per_jam = 0;
+                var ratarata_temperature_per_jam = 0;
+                var ratarata_humidity_per_jam = 0;
+
+                var getJam = ('0' + a).slice(-2);
+                // console.log(`iterasi a = ${a}`);
+
+                for (var b = 0; b < 60; b++) {
+                    var getMenit = ('0' + b).slice(-2);
+                    // console.log(`iterasi b = ${b}`);
+
+                    if (snapshot.child(`${getJam}/${getJam}-${getMenit}`).exists()) {
+                        var data = snapshot.child(`${getJam}/${getJam}-${getMenit}`).val();
+
+                        sum_water_level_per_menit += data['Level Ketinggian Air'];
+                        sum_soil_moisture_per_menit += data['Kelembaban Tanah'];
+                        sum_temperature_per_menit += data['Suhu'];
+                        sum_humidity_per_menit += data['Kelembaban Udara'];
+
+                    }
+                }
+                sum_water_level_per_jam += sum_water_level_per_menit;
+                ratarata_water_level_per_jam = sum_water_level_per_jam / 60;
+
+                sum_soil_moisture_per_jam += sum_soil_moisture_per_menit;
+                ratarata_soil_moisture_per_jam = sum_soil_moisture_per_jam / 60;
+
+                sum_temperature_per_jam += sum_temperature_per_menit;
+                ratarata_temperature_per_jam = sum_temperature_per_jam / 60;
+
+                sum_humidity_per_jam += sum_humidity_per_menit;
+                ratarata_humidity_per_jam = sum_humidity_per_jam / 60;
+
+                console.log(ratarata_water_level_per_jam);
+                console.log(ratarata_soil_moisture_per_jam);
+                console.log(ratarata_temperature_per_jam);
+                console.log(ratarata_humidity_per_jam);
+
+                data_water_level_per_jam.push(ratarata_water_level_per_jam);
+                data_soil_moisture_per_jam.push(ratarata_soil_moisture_per_jam);
+                data_temperature_per_jam.push(ratarata_temperature_per_jam);
+                data_humidity_per_jam.push(ratarata_humidity_per_jam);
+            }
+
+
+
+            const data_grafik_water_level = {
+                labels: label_per_jam,
+                datasets: [{
+                    label: 'Level Ketinggian Air (% per hours)',
+                    backgroundColor: '#16B031',
+                    borderColor: '#16B031',
+                    // data: [0, 8, 9, 20, 7, 3],
+                    data: data_water_level_per_jam,
+                }]
+            };
+
+            const config_water_level = {
+                type: 'line',
+                data: data_grafik_water_level,
+                options: {
+                    scales: {
+                        y: {
+                            // the data minimum used for determining the ticks is Math.min(dataMin, suggestedMin)
+                            suggestedMin: 0,
+
+                            // the data maximum used for determining the ticks is Math.max(dataMax, suggestedMax)
+                            suggestedMax: 100,
+                        }
+                    }
+                }
+            };
+
+            const WaterLevelChart = new Chart(
+                document.getElementById('WaterLevelChart'),
+                config_water_level
+            );
+
+
+
+            const data_grafik_soil_moisture = {
+                labels: label_per_jam,
+                datasets: [{
+                    label: 'Kelembaban Tanah (% per hours)',
+                    backgroundColor: '#16B031',
+                    borderColor: '#16B031',
+                    // data: [0, 8, 9, 20, 7, 3],
+                    data: data_soil_moisture_per_jam,
+                }]
+            };
+
+            const config_soil_moisture = {
+                type: 'line',
+                data: data_grafik_soil_moisture,
+                options: {
+                    scales: {
+                        y: {
+                            // the data minimum used for determining the ticks is Math.min(dataMin, suggestedMin)
+                            suggestedMin: 0,
+
+                            // the data maximum used for determining the ticks is Math.max(dataMax, suggestedMax)
+                            suggestedMax: 100,
+                        }
+                    }
+                }
+            };
+
+            const SoilMoistureChart = new Chart(
+                document.getElementById('SoilMoistureChart'),
+                config_soil_moisture
+            );
+
+            // console.log(`Collection Data/${year}/${month}/${date}/${hours}` + `/${hours}-${getMenit}` + "Level Ketinggian Air");
+
+
+            const data_grafik_temperature = {
+                labels: label_per_jam,
+                datasets: [{
+                    label: 'Suhu (°C per hours)',
+                    backgroundColor: '#16B031',
+                    borderColor: '#16B031',
+                    // data: [0, 8, 9, 20, 7, 3],
+                    data: data_temperature_per_jam,
+                }]
+            };
+
+            const config_temperature = {
+                type: 'line',
+                data: data_grafik_temperature,
+                options: {
+                    scales: {
+                        y: {
+                            // the data minimum used for determining the ticks is Math.min(dataMin, suggestedMin)
+                            suggestedMin: 0,
+
+                            // the data maximum used for determining the ticks is Math.max(dataMax, suggestedMax)
+                            suggestedMax: 100,
+                        }
+                    }
+                }
+            };
+
+            const TemperatureChart = new Chart(
+                document.getElementById('TemperatureChart'),
+                config_temperature
+            );
+
+            // console.log(`Collection Data/${year}/${month}/${date}/${hours}` + `/${hours}-${getMenit}` + "Level Ketinggian Air");
+
+
+            const data_grafik_humidity = {
+                labels: label_per_jam,
+                datasets: [{
+                    label: 'Suhu (°C per hours)',
+                    backgroundColor: '#16B031',
+                    borderColor: '#16B031',
+                    // data: [0, 8, 9, 20, 7, 3],
+                    data: data_humidity_per_jam,
+                }]
+            };
+
+            const config_humidity = {
+                type: 'line',
+                data: data_grafik_humidity,
+                options: {
+                    scales: {
+                        y: {
+                            // the data minimum used for determining the ticks is Math.min(dataMin, suggestedMin)
+                            suggestedMin: 0,
+
+                            // the data maximum used for determining the ticks is Math.max(dataMax, suggestedMax)
+                            suggestedMax: 100,
+                        }
+                    }
+                }
+            };
+
+            const HumidityChart = new Chart(
+                document.getElementById('HumidityChart'),
+                config_humidity
+            );
+
+            // console.log(`Collection Data/${year}/${month}/${date}/${hours}` + `/${hours}-${getMenit}` + "Level Ketinggian Air");
+
+
+        });
+
+        // console.log(data_water_level_per_menit);
+
+        // for (i = 0; i < 60; i++){
+        //     console.log(data_water_level_per_menit[i]);
+        // }
+
+        // // console.log(label_per_menit);
+
+        // var contoh = [0, 10, 5, 2, 20, 30, 45];
+
+        // console.log(contoh);
+
+
+
+    </script>
+</body>
+
+</html>

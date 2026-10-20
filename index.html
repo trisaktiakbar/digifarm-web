@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>DigiFarm</title>
+</head>
+<body>
+    <script>
+        console.log(sessionStorage.getItem('user_uid'));
+        if(sessionStorage.getItem('user_uid') != null){
+          window.location = "dashboard"
+        }
+        else{
+            window.location = "login"
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        .diagram-title {
+            font-size: 14pt;
+            font-weight: bolder;
+        }
+
+        .scroll {
+            display: block;
+            border: 1px solid #16B031;
+            padding: 5px;
+            margin-top: 5px;
+            width: 100%;
+            height: 100%;
+            overflow-y: scroll;
+        }
+
+        .child-div {
+            height: 100%;
+        }
+
+        html,
+        body {
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            align-items: stretch;
+        }
+
+        .root {
+            width: 100%
+        }
+    </style>
+
+</head>
+
+<body>
+    <div style="height: 35rem;">
+        <div class="child-div">
+            <div class="card p-4 mt-4">
+                <h1 class="diagram-title">Level Ketinggian Air</h1>
+                <canvas id="WaterLevelChart" height="30px" width="100%"></canvas>
+            </div>
+
+            <div class="card p-4 mt-4">
+                <h1 class="diagram-title">Kelembaban Tanah</h1>
+                <canvas id="SoilMoistureChart" height="30px" width="100%"></canvas>
+            </div>
+
+            <div class="card p-4 mt-4">
+                <h1 class="diagram-title">Suhu</h1>
+                <canvas id="TemperatureChart" height="30px" width="100%"></canvas>
+            </div>
+
+            <div class="card p-4 mt-4">
+                <h1 class="diagram-title">Kelembaban Udara</h1>
+                <canvas id="HumidityChart" height="30px" width="100%"></canvas>
+            </div>
+            <div style="height: 40px;"></div>
+        </div>
+    </div>
+
+
+    <!-- Library Firebase -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+
+    <!-- Inisialisasi Firebase -->
+    <script>
+
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyCgfuXQnnOE53pMU6dgMWQLmpwWiczcDRg",
+            authDomain: "digifarm-c4420.firebaseapp.com",
+            databaseURL: "https://digifarm-c4420-default-rtdb.firebaseio.com",
+            projectId: "digifarm-c4420",
+            storageBucket: "digifarm-c4420.appspot.com",
+            messagingSenderId: "404613354366",
+            appId: "1:404613354366:web:b0cf2723df898d22efd92f"
+        };
+
+    </script>
+
+    <script>
+
+        var now = new Date();
+
+        var date = ('0' + now.getDate()).slice(-2);
+        var month = ('0' + (now.getMonth() + 1)).slice(-2);
+        var year = now.getFullYear();
+        var hours = ('0' + now.getHours()).slice(-2);
+        var minutes = ('0' + now.getMinutes()).slice(-2);
+        var time = `Current Data/${year}/${month}/${date}/${hours}/${hours}-`;
+
+        var firebaseRef = firebase.database().ref(`Collection Data/${year}/${month}/${date}`);
+        var label_per_menit = [];
+
+        var data_water_level_per_menit = [];
+        var data_soil_moisture_per_menit = [];
+        var data_temperature_per_menit = [];
+        var data_humidity_per_menit = [];
+
+        firebaseRef.on("value", function (snapshot) {
+
+            console.log(`${hours}/${hours}-${minutes}`);
+
+                for (var b = 0; b < 60; b++) {
+                    var getMenit = ('0' + b).slice(-2);
+                    label_per_menit.push(getMenit);
+                    // console.log(`iterasi b = ${b}`);
+
+                    if (snapshot.child(`${hours}/${hours}-${getMenit}`).exists()) {
+                        var data = snapshot.child(`${hours}/${hours}-${getMenit}`).val();
+
+                        data_water_level_per_menit.push(data['Level Ketinggian Air']);
+                        data_soil_moisture_per_menit.push(data['Kelembaban Tanah']);
+                        data_temperature_per_menit.push(data['Suhu']);
+                        data_humidity_per_menit.push(data['Kelembaban Udara']);
+
+                    }
+
+                    else{
+                        data_water_level_per_menit.push(0);
+                        data_soil_moisture_per_menit.push(0);
+                        data_temperature_per_menit.push(0);
+                        data_humidity_per_menit.push(0);
+                    }
+                }
+
+            const data_grafik_water_level = {
+                labels: label_per_menit,
+                datasets: [{
+                    label: 'Level Ketinggian Air (% per minutes)',
+                    backgroundColor: '#16B031',
+                    borderColor: '#16B031',
+                    data: data_water_level_per_menit,
+                }]
+            };
+
+            const config_water_level = {
+                type: 'line',
+                data: data_grafik_water_level,
+                options: {
+                    scales: {
+                        y: {
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                        }
+                    }
+                }
+            };
+
+            const WaterLevelChart = new Chart(
+                document.getElementById('WaterLevelChart'),
+                config_water_level
+            );
+
+            const data_grafik_soil_moisture = {
+                labels: label_per_menit,
+                datasets: [{
+                    label: 'Kelembaban Tanah (% per minutes)',
+                    backgroundColor: '#16B031',
+                    borderColor: '#16B031',
+                    data: data_soil_moisture_per_menit,
+                }]
+            };
+
+            const config_soil_moisture = {
+                type: 'line',
+                data: data_grafik_soil_moisture,
+                options: {
+                    scales: {
+                        y: {
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                        }
+                    }
+                }
+            };
+
+            const SoilMoistureChart = new Chart(
+                document.getElementById('SoilMoistureChart'),
+                config_soil_moisture
+            );
+
+            const data_grafik_temperature = {
+                labels: label_per_menit,
+                datasets: [{
+                    label: 'Suhu (°C per minutes)',
+                    backgroundColor: '#16B031',
+                    borderColor: '#16B031',
+                    data: data_temperature_per_menit,
+                }]
+            };
+
+            const config_temperature = {
+                type: 'line',
+                data: data_grafik_temperature,
+                options: {
+                    scales: {
+                        y: {
+                            suggestedMin: 0,
+                            suggestedMax: 100,
+                        }
+                    }
+                }
+            };
+
+            const TemperatureChart = new Chart(
+                document.getElementById('TemperatureChart'),
+                config_temperature
+            );
+
+            const data_grafik_humidity = {
+                labels: label_per_menit,
+                datasets: [{
+                    label: 'Suhu (°C per minutes)',
+                    backgroundColor: '#16B031',
+                    borderColor: '#16B031',
+                    // data: [0, 8, 9, 20, 7, 3],
+                    data: data_humidity_per_menit,
+                }]
+            };
+
+            const config_humidity = {
+                type: 'line',
+                data: data_grafik_humidity,
+                options: {
+                    scales: {
+                        y: {
+                            // the data minimum used for determining the ticks is Math.min(dataMin, suggestedMin)
+                            suggestedMin: 0,
+
+                            // the data maximum used for determining the ticks is Math.max(dataMax, suggestedMax)
+                            suggestedMax: 100,
+                        }
+                    }
+                }
+            };
+
+            HumidityChart = new Chart(
+                document.getElementById('HumidityChart'),
+                config_humidity
+            );
+        });
+
+    </script>
+</body>
+
+</html>

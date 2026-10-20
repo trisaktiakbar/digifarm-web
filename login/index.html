@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+    <meta name="generator" content="Hugo 0.88.1">
+    <title>DigiFarm | Log In</title>
+
+    <link rel="canonical" href="https://getbootstrap.com/docs/5.1/examples/sign-in/">
+    
+    <style>
+      body{
+        background-image: url(../img/bg.png);
+        background-repeat: no-repeat;
+        width: 100%;
+      }
+    </style>
+
+    
+
+    <!-- Bootstrap core CSS -->
+<link href="../assets/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+      .bd-placeholder-img {
+        font-size: 1.125rem;
+        text-anchor: middle;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
+
+      @media (min-width: 768px) {
+        .bd-placeholder-img-lg {
+          font-size: 3.5rem;
+        }
+      }
+
+      @font-face {
+            font-family: "Quicksand_Bold";
+            src: url('../font/quicksand_bold.otf');
+      }
+
+      @font-face {
+            font-family: "Quicksand_Book";
+            src: url('../font/quicksand_book.otf');
+      }
+
+      @font-face {
+            font-family: "Tommy_Regular";
+            src: url('../font/tommy_regular.otf');
+      }
+
+      .bg-btn{
+        background-color: #16B031;
+      }
+
+      .txt-logo{
+        font-family: "Quicksand_Bold";
+        color: #16B031;
+      }
+
+      .txt-signup{
+        font-family: "Quicksand_Book";
+        font-weight: bolder;
+      }
+
+      .txt-btn-signup{
+        font-family: "Quicksand_Book";
+        color: #16B031;
+        font-weight: bolder;
+      }
+
+      .txt-title{
+        font-family: "Quicksand_Bold";
+      }
+    </style>
+
+    
+
+    
+    <!-- Custom styles for this template -->
+    <link href="login.css" rel="stylesheet">
+  </head>
+  <body>
+    
+    <div class="card p-2 col-lg-4" style="margin: auto; border-radius: 1%;">
+<main class="form-signin">
+    <h1 class="text-center txt-logo mb-4">DigiFarm</h1>
+    <div id="alert"></div>
+    <h5 class="text-center txt-title mb-3">Log into your account</h5>
+
+    <div class="form-floating">
+      <input type="email" class="txt-signup form-control" name="email" id="email" placeholder="name@example.com">
+      <label class="txt-signup" for="email">Email</label>
+    </div>
+    <div class="form-floating">
+      <input type="password" class="txt-signup form-control" name="password" id="password" placeholder="Password">
+      <label class="txt-signup" for="password">Password</label>
+    </div>
+
+    <p class="text-center txt-signup">Belum punya akun?&nbsp;<a href="../register" class="txt-btn-signup" style="text-decoration: none;">Daftar</a></p>
+    <button class="w-100 btn bg-btn text-white txt-signup" name="login" id="login" onclick="login()">Log In</button>
+    <p class="txt-signup text-center mt-3 text-muted">Digifarm &copy; 2022</p>
+
+</main>
+</div>
+    
+  </body>
+
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-app.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-auth.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/8.6.8/firebase-database.js"></script>
+  <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+  <script src="index.js"></script>
+
+  <script>
+    document.addEventListener("keyup", function(event) {
+      if (event.keyCode === 13) {
+        login()
+      }
+    });
+  </script>
+</html>
